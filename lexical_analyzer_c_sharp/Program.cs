@@ -18,10 +18,6 @@
             }
 
             Table table = new Table();
-            table.insert("dimasik");
-            //table.insert("dimasik");
-            table.insert("dimasik1");
-            table.exists("dimasik");
         }
     }
 }
