@@ -18,6 +18,13 @@
             }
 
             Table table = new Table();
+
+            table.insert("dimasik");
+
+            foreach(var elem in table) {
+                
+            }
+                
         }
     }
 }
