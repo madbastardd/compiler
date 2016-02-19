@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Concrete\AttributeClass.cs" />
+    <Compile Include="Concrete\IdentifierTable.cs" />
     <Compile Include="Interfaces\ITable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
