@@ -31,11 +31,6 @@ namespace lexical_analyzer_c_sharp {
             Table table = new Table();
 
             table.insert("dimasik");
-
-            foreach(var elem in table) {
-                
-            }
-                
         }
     }
 }
