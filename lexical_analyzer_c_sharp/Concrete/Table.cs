@@ -2,9 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Interfaces.TableSpace;
 
-namespace lexical_analyzer_c_sharp {
-    class Table : IEnumerable {
+namespace Concrete.TableSpace {
+    /// <summary>
+    /// class includes dictionary, that has unique keys and unique values
+    /// </summary>
+    class Table : IEnumerable, ITable {
         ushort current_index;
         SortedDictionary<ushort, string> data;
 
