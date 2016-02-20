@@ -45,7 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Concrete\AttributeClass.cs" />
-    <Compile Include="Concrete\IdentifierTable.cs" />
+    <Compile Include="Concrete\ConstantsTable.cs" />
+    <Compile Include="Concrete\IdentifiersTable.cs" />
+    <Compile Include="Concrete\KeyWordsTable.cs" />
     <Compile Include="Concrete\MultySymbolSeparatorsTable.cs" />
     <Compile Include="Concrete\Parser.cs" />
     <Compile Include="Interfaces\ITable.cs" />

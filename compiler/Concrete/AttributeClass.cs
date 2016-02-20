@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 
 namespace Concrete.AttributeClassSpace {
+    /// <summary>
+    /// use like table for OneSymbolSeparate symbols
+    /// </summary>
     public class AttributeClass {
         public static readonly UInt16
             ERROR = 0,
@@ -15,7 +18,7 @@ namespace Concrete.AttributeClassSpace {
         static List<UInt16> attributes = new List<UInt16>();
 
         static AttributeClass() {
-            for (byte ind = 0; ind < 128; ind++) {
+            for (byte ind = 0; ind < 255; ind++) {
                 if ((char)ind >= 'A' && (char)ind <= 'Z' || (char)ind >= 'a' && (char)ind <= 'z') {
                     //keyword or identifier
                     attributes.Add((UInt16)(IDENTIFIERS | KEYWORDS));
@@ -24,11 +27,15 @@ namespace Concrete.AttributeClassSpace {
                     //constant
                     attributes.Add((UInt16)(CONST));
                 }
-                else if ((char)ind == ':' || (char)ind == ';') {
+                else if ((char)ind == ':') {
                     //separators
                     attributes.Add((UInt16)(ONE_SYMBOL_SEPARATORS | MULTY_SYMBOL_SEPARATORS));
                 }
-                else if ((char)ind == ' ' || (char)ind == '\n') {
+                else if ((char)ind == ';') {
+                    //only one symbol separator
+                    attributes.Add((UInt16)(ONE_SYMBOL_SEPARATORS));
+                }
+                else if ((char)ind == ' ' || (char)ind == '\n' || (char)ind == '\t') {
                     //white spaces
                     attributes.Add((UInt16)(WHITE_SPACE));
                 }
@@ -39,6 +46,8 @@ namespace Concrete.AttributeClassSpace {
         }
 
         public static UInt16 get(ushort index) {
+            if (index >= 255)
+                throw new IndexOutOfRangeException("index");
             return AttributeClass.attributes[index];
         }
 

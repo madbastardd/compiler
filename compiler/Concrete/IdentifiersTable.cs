@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Concrete.TableSpace;
 
 namespace Concrete.IdentifierTableSpace {
-    public class IdentifierTable : Table {
-        public IdentifierTable(ushort _index = 0) : base(_index) {
+    public class IdentifierTables : Table {
+        public IdentifierTables(ushort _index = 1001) : base(_index) {
             //creates empty table
         }
     }

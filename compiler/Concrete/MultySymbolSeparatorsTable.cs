@@ -7,7 +7,7 @@ using Concrete.TableSpace;
 
 namespace lexical_analyzer_c_sharp.Concrete {
     public class MultySymbolSeparatorsTable : Table {
-        public MultySymbolSeparatorsTable(ushort _index = 200) : base(_index) {
+        public MultySymbolSeparatorsTable(ushort _index = 301) : base(_index) {
             this.insert(">=");
             this.insert("<=");
             this.insert(":=");

@@ -10,8 +10,8 @@ namespace lexical_analyzer_c_sharp.Concrete {
         static List<string> parsed_string = null;
         static public string source_string { get; private set; }
 
-        Parser() {
-            
+        static Parser() {
+            //empty constructor
         }
         public static void Parse(string _source) {
             if (_source == null) {
@@ -22,9 +22,9 @@ namespace lexical_analyzer_c_sharp.Concrete {
             parsed_string = new List<string>();
             source_string = removeDublicates(_source);
 
-            UInt16 symbolAttribute;
+            UInt16 previousAttribute;
             try {
-                symbolAttribute = AttributeClass.get(source_string[0]);
+                previousAttribute = AttributeClass.get(source_string[0]);
             } catch (IndexOutOfRangeException) {
                 //empty string
                 Parser.parsed_string.Add("");
@@ -35,9 +35,10 @@ namespace lexical_analyzer_c_sharp.Concrete {
 
             foreach (var symbol in source_string) {
                 ushort symbol_attr;
-                if (((symbol_attr = AttributeClass.get(symbol)) & symbolAttribute) == 0) {
+                if (((symbol_attr = AttributeClass.get(symbol)) & previousAttribute) == 0 ||
+                    previousAttribute == AttributeClass.ONE_SYMBOL_SEPARATORS) {
                     //another symbol type
-                    symbolAttribute = symbol_attr;
+                    previousAttribute = symbol_attr;
                     parsed_string.Add(source_string.Substring(start, end - start));
                     start = end;
                 }

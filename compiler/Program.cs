@@ -12,7 +12,7 @@ namespace lexical_analyzer_c_sharp {
 
             //Console.WriteLine(attributes[(ushort)'A']);
 
-            Table table = new IdentifierTable();
+            Table table = new IdentifierTables();
 
             table.insert("dimasik");
         }
