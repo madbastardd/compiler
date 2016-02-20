@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Concrete.TableSpace;
 
-namespace lexical_analyzer_c_sharp.Concrete {
-    class IdentifierTable : Table {
-        IdentifierTable(ushort _index = 0) : base(_index) {
+namespace Concrete.IdentifierTableSpace {
+    public class IdentifierTable : Table {
+        public IdentifierTable(ushort _index = 0) : base(_index) {
             //creates empty table
         }
     }

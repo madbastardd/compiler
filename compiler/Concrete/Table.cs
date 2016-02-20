@@ -8,9 +8,9 @@ namespace Concrete.TableSpace {
     /// <summary>
     /// class includes dictionary, that has unique keys and unique values
     /// </summary>
-    class Table : IEnumerable, ITable {
-        ushort current_index;
-        SortedDictionary<ushort, string> data;
+    public abstract class Table : IEnumerable, ITable {
+        protected ushort current_index;
+        protected SortedDictionary<ushort, string> data;
 
         public Table(ushort _current_index = 0) {
             this.current_index = _current_index;
@@ -32,13 +32,9 @@ namespace Concrete.TableSpace {
         }
 
         void insert(KeyValuePair<ushort, string> pair) {
-            try {
-                this.exists(pair.Value);
-                throw new ArgumentException();
-            } catch (Exception ex) when (ex is ArgumentNullException || ex is InvalidOperationException) {
-                this[pair.Key] = pair.Value;
-            }
-            
+            if (this.isInTable(pair.Value))
+                throw new ArgumentException(pair.Value);
+            this[pair.Key] = pair.Value;
         }
 
         public void insert(string _value) {
@@ -61,6 +57,13 @@ namespace Concrete.TableSpace {
 
         public IEnumerator GetEnumerator() {
             return this.data.GetEnumerator();
+        }
+
+        public bool isInTable(string _value) {
+            var result = from res in this.data
+                         where res.Value == _value
+                         select res;
+            return result.Count() != 0;
         }
     }
 }

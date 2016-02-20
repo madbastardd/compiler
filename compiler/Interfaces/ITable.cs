@@ -5,6 +5,7 @@ namespace Interfaces.TableSpace {
         string this[ushort index] { get; }
 
         ushort exists(string _value);
+        bool isInTable(string _value);
         IEnumerator GetEnumerator();
         void insert(string _value);
     }
