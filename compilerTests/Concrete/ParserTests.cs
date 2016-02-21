@@ -1,25 +1,42 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using lexical_analyzer_c_sharp.Concrete;
+using Concrete.Parser;
 using System;
+using Concrete;
 using System.Collections.Generic;
+
+namespace Concrete.Parser.Tests {
+    [TestClass()]
+    public class ParserTests {
+        [TestMethod()]
+        public void RecognizeTest() {
+            TableSpace.Table[] tables = new TableSpace.Table[] {
+                new MultySymbolSeparatorsTableSpace.MultySymbolSeparatorsTable(),
+                new KeyWordTableSpace.KeyWordsTable(),
+                new ConstantsTableSpace.ConstantsTable(),
+                new IdentifierTableSpace.IdentifierTables()
+            };
+            CollectionAssert.AreEqual(Parser.Recognize(Parser.Parse("         program one              1\ndima"), tables),
+                new List<UInt16>() { 401, 1001, 501, 1002 });
+        }
+    }
+}
 
 namespace Test.Concrete.Tests {
     [TestClass()]
     public class ParserTests {
         [TestMethod()]
         public void ParseTest() {
-            try {
-                Parser.Parse("         program one              1\ndima");
-                CollectionAssert.AreEqual(Parser.getParsedString(), new List<string>() { "program", " ", "one", " ", "1", "\n", "dima" });
-            }
-            catch (Exception ex) {
-                Assert.Fail(ex.Message);
-            }
+            CollectionAssert.AreEqual(Parser.Parse("         program one              1\ndima"),
+                new List<string>() { "program", " ", "one", " ", "1", "\n", "dima" });
         }
         [TestMethod]
         public void ParseTest2() {
-            Parser.Parse("");
-            CollectionAssert.AreEqual(Parser.getParsedString(), new List<string>() { "" });
+            try {
+                Parser.Parse("");
+                Assert.Fail();
+            } catch (Exception) {
+                //ALL ok
+            }
         }
 
         [TestMethod]
@@ -30,7 +47,7 @@ namespace Test.Concrete.Tests {
             catch (Exception) {
 
             }
-            CollectionAssert.AreEqual(Parser.getParsedString(), null);
+            
         }
 
         [TestMethod]
@@ -40,8 +57,7 @@ namespace Test.Concrete.Tests {
                 using (System.IO.StreamReader sr = new System.IO.StreamReader("test.txt")) {
                     string line;
                     while ((line = sr.ReadLine()) != null) {
-                        Parser.Parse(line);
-                        parsedText.AddRange(Parser.getParsedString());
+                        parsedText.AddRange(Parser.Parse(line));
                     }
                 }
 

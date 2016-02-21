@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using lexical_analyzer_c_sharp.Concrete;
+using Concrete.MultySymbolSeparatorsTableSpace;
 
 namespace Test.Concrete.Tests {
     [TestClass()]

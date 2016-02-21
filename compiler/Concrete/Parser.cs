@@ -1,34 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Concrete.TableSpace;
+using Concrete.KeyWordTableSpace;
+using Concrete.IdentifierTableSpace;
+using Concrete.ConstantsTableSpace;
 using Concrete.AttributeClassSpace;
+using Concrete.MultySymbolSeparatorsTableSpace;
 
-namespace lexical_analyzer_c_sharp.Concrete {
+namespace Concrete.Parser {
     public class Parser {
-        static List<string> parsed_string = null;
-        static public string source_string { get; private set; }
-
-        static Parser() {
-            //empty constructor
-        }
-        public static void Parse(string _source) {
-            if (_source == null) {
-                parsed_string = null;
+        public static List<string> Parse(string _source) {
+            if (_source == null)
                 throw new ArgumentNullException("source_string");
-            }
 
-            parsed_string = new List<string>();
-            source_string = removeDublicates(_source);
+            List<string> parsed_string = new List<string>();
+            string source_string = removeDublicatesSpaces(_source);
 
             UInt16 previousAttribute;
             try {
                 previousAttribute = AttributeClass.get(source_string[0]);
             } catch (IndexOutOfRangeException) {
                 //empty string
-                Parser.parsed_string.Add("");
-                return;
+                throw new ArgumentNullException("source_string");
             }
             Int32 start = 0,
                 end = 0;
@@ -45,9 +39,11 @@ namespace lexical_analyzer_c_sharp.Concrete {
                 end++;
             }
             parsed_string.Add(source_string.Substring(start, end - start));
+
+            return parsed_string;
         }
 
-        private static string removeDublicates(string _source) {
+        private static string removeDublicatesSpaces(string _source) {
             char[] whiteSpaces = AttributeClass.getWhiteSpacesChar();
             _source = _source.Trim(whiteSpaces);
 
@@ -63,8 +59,75 @@ namespace lexical_analyzer_c_sharp.Concrete {
             return _source;
         }
 
-        public static List<string> getParsedString() {
-            return Parser.parsed_string;
+        public static List<UInt16> Recognize(List<string> parsedString, Table[] tables) {
+            /*
+                0 - Multy Symbol Table
+                1 - Keywords
+                2 - Constants
+                3 - Identifiers
+            */
+            List<UInt16> analyzedString = new List<ushort>();
+
+            foreach (string item in parsedString) {
+                ushort charAttribute = AttributeClass.get(item[0]);
+                if ((charAttribute & AttributeClass.WHITE_SPACE) != 0) {
+                    //white space
+                    continue;
+                }
+                else if ((charAttribute & AttributeClass.ONE_SYMBOL_SEPARATORS) != 0 &&
+                    item.Length == 1) {
+                    //one symbol separator or white space
+                    analyzedString.Add(charAttribute);
+                }
+                else if ((charAttribute & AttributeClass.MULTY_SYMBOL_SEPARATORS) != 0 &&
+                    item.Length != 1) {
+                    //multy symbol separator
+                    MultySymbolSeparatorsTable table = tables[0] as MultySymbolSeparatorsTable;
+                    UInt16 key;
+                    try {
+                        key = table.exists(item);
+                        analyzedString.Add(key);
+                    } catch (Exception) {
+                        //it is several one symbol separators
+                        foreach (var chars in item) {
+                            analyzedString.Add(AttributeClass.get(chars));
+                        }
+                    }
+                } else if ((charAttribute & AttributeClass.KEYWORDS) != 0) {
+                    //keyword or identifier
+                    UInt16 key;
+                    KeyWordsTable table = tables[1] as KeyWordsTable;
+                    try {
+                        key = table.exists(item);
+                        analyzedString.Add(key);
+                    } catch (Exception) {
+                        //it is identifier
+                        IdentifierTables tableID = tables[3] as IdentifierTables;
+                        try {
+                            key = tableID.exists(item);
+                            analyzedString.Add(key);
+                        } catch (Exception) {
+                            //new ID
+                            tableID.insert(item);
+                            analyzedString.Add(tableID.exists(item));
+                        }
+                    }
+                } else if ((charAttribute & AttributeClass.CONST) != 0) {
+                    //constant
+                    ConstantsTable table = tables[2] as ConstantsTable;
+                    UInt16 key;
+                    try {
+                        key = table.exists(item);
+                        analyzedString.Add(key);
+                    } catch (Exception) {
+                        table.insert(item);
+                        analyzedString.Add(table.exists(item));
+                    }
+                } else {
+                    throw new ArgumentException("item");
+                }
+            }
+            return analyzedString;
         }
     }
 }
