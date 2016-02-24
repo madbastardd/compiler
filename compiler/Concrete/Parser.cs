@@ -26,7 +26,7 @@ namespace Concrete.Parser {
             List<UInt16> result = new List<ushort>();
 
             if (sentence == null || sentence == "")
-                return result;
+                throw new Exception("sentence");
 
             MultySymbolSeparatorsTable MSTable = tables[0] as MultySymbolSeparatorsTable;
             KeyWordsTable KWTable = tables[1] as KeyWordsTable;
