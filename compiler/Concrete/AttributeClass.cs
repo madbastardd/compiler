@@ -9,35 +9,44 @@ namespace Concrete.AttributeClassSpace {
         public static readonly UInt16
             ERROR = 0,
             WHITE_SPACE = 1,
-            ONE_SYMBOL_SEPARATORS = 2,
-            MULTY_SYMBOL_SEPARATORS = 4,
-            KEYWORDS = 8,
-            CONST = 16,
-            IDENTIFIERS = 32;
+            SEPARATOR = 2,
+            WORD = 4,
+            DIGIT = 8,
+            FRACTIONAL_PART_SIGN = 16,
+            DOLLAR_SIGN = 32,
+            NUMBER_SIGN = 64;
 
         static List<UInt16> attributes = new List<UInt16>();
 
         static AttributeClass() {
             for (byte ind = 0; ind < 255; ind++) {
-                if ((char)ind >= 'A' && (char)ind <= 'Z' || (char)ind >= 'a' && (char)ind <= 'z') {
+                if (ind >= 'A' && ind <= 'Z' || ind >= 'a' && ind <= 'z') {
                     //keyword or identifier
-                    attributes.Add((UInt16)(IDENTIFIERS | KEYWORDS));
+                    attributes.Add((UInt16)(WORD));
                 }
-                else if ((char)ind >= '0' && (char)ind <= '9') {
+                else if (ind >= '0' && ind <= '9') {
                     //constant
-                    attributes.Add((UInt16)(CONST));
+                    attributes.Add((UInt16)(DIGIT));
                 }
-                else if ((char)ind == ':') {
+                else if (ind == '+' || ind == '-') {
+                    //number sign
+                    attributes.Add((UInt16)(NUMBER_SIGN));
+                }
+                else if (ind == ':' || ind == '>' || ind == '<' || ind == ';' || ind == '*' || ind == '=' || ind == '!' || ind == '/' || ind == '&' || ind == '^') {
                     //separators
-                    attributes.Add((UInt16)(ONE_SYMBOL_SEPARATORS | MULTY_SYMBOL_SEPARATORS));
+                    attributes.Add((UInt16)(SEPARATOR));
                 }
-                else if ((char)ind == ';') {
-                    //only one symbol separator
-                    attributes.Add((UInt16)(ONE_SYMBOL_SEPARATORS));
-                }
-                else if ((char)ind == ' ' || (char)ind == '\n' || (char)ind == '\t') {
+                else if (ind == ' ' || ind == '\n' || ind == '\t' || ind == '\v' || ind == 12) {
                     //white spaces
                     attributes.Add((UInt16)(WHITE_SPACE));
+                }
+                else if (ind == '#') {
+                    //fractional part
+                    attributes.Add((UInt16)(FRACTIONAL_PART_SIGN));
+                }
+                else if (ind == '$') {
+                    //dolla sign of EXP
+                    attributes.Add((UInt16)(DOLLAR_SIGN));
                 }
                 else {
                     attributes.Add((UInt16)(ERROR));
@@ -45,20 +54,10 @@ namespace Concrete.AttributeClassSpace {
             }
         }
 
-        public static UInt16 get(ushort index) {
+        public static UInt16 Get(ushort index) {
             if (index >= 255)
                 throw new IndexOutOfRangeException("index");
             return AttributeClass.attributes[index];
-        }
-
-        public static char[] getWhiteSpacesChar() {
-            List<char> trimChars = new List<char>();
-            for (ushort ind = 0; ind < attributes.Count; ind++) {
-                if ((attributes[ind] & WHITE_SPACE) != 0) {
-                    trimChars.Add((char)ind);
-                }
-            }
-            return trimChars.ToArray();
         }
     }
 }

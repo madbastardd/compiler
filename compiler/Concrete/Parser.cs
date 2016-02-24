@@ -7,127 +7,114 @@ using Concrete.IdentifierTableSpace;
 using Concrete.ConstantsTableSpace;
 using Concrete.AttributeClassSpace;
 using Concrete.MultySymbolSeparatorsTableSpace;
+using System.Text;
+using System.IO;
 
 namespace Concrete.Parser {
     public class Parser {
-        public static List<string> Parse(string _source) {
-            if (_source == null)
-                throw new ArgumentNullException("source_string");
-
-            List<string> parsed_string = new List<string>();
-            string source_string = removeDublicatesSpaces(_source);
-
-            UInt16 previousAttribute;
-            try {
-                previousAttribute = AttributeClass.get(source_string[0]);
-            } catch (IndexOutOfRangeException) {
-                //empty string
-                throw new ArgumentNullException("source_string");
-            }
-            Int32 start = 0,
-                end = 0;
-
-            foreach (var symbol in source_string) {
-                ushort symbol_attr;
-                if (((symbol_attr = AttributeClass.get(symbol)) & previousAttribute) == 0 ||
-                    previousAttribute == AttributeClass.ONE_SYMBOL_SEPARATORS) {
-                    //another symbol type
-                    previousAttribute = symbol_attr;
-                    parsed_string.Add(source_string.Substring(start, end - start));
-                    start = end;
-                }
-                end++;
-            }
-            parsed_string.Add(source_string.Substring(start, end - start));
-
-            return parsed_string;
+        enum States {
+            VAR_READ, CONST_READ, PROCEDURE_READ
         }
-
-        private static string removeDublicatesSpaces(string _source) {
-            char[] whiteSpaces = AttributeClass.getWhiteSpacesChar();
-            _source = _source.Trim(whiteSpaces);
-
-            for (int i = 0; i < _source.Length - 1; i++) {
-                var check = from res in whiteSpaces
-                            where res == _source[i]
-                            select res; //return not empty enumerator if source[i] is white space
-                if (check.Count() > 0 && _source[i] == _source[i + 1]) {
-                    _source = _source.Remove(i + 1, 1);
-                    i--;
-                }
-            }
-            return _source;
-        }
-
-        public static List<UInt16> Recognize(List<string> parsedString, Table[] tables) {
+        public static List<UInt16> Parse(string sentence, Table[] tables) {
             /*
-                0 - Multy Symbol Table
-                1 - Keywords
-                2 - Constants
-                3 - Identifiers
+                tables:
+                    0 - Multy Symbol Table
+                    1 - Keywords
+                    2 - Constants
+                    3 - Identifiers
             */
-            List<UInt16> analyzedString = new List<ushort>();
+            List<UInt16> result = new List<ushort>();
 
-            foreach (string item in parsedString) {
-                ushort charAttribute = AttributeClass.get(item[0]);
-                if ((charAttribute & AttributeClass.WHITE_SPACE) != 0) {
-                    //white space
-                    continue;
+            if (sentence == null || sentence == "")
+                return result;
+
+            MultySymbolSeparatorsTable MSTable = tables[0] as MultySymbolSeparatorsTable;
+            KeyWordsTable KWTable = tables[1] as KeyWordsTable;
+            ConstantsTable CTable = tables[2] as ConstantsTable;
+            IdentifierTables IDTable = tables[3] as IdentifierTables;
+
+            sentence = sentence.Trim(new char[] { ' ', '\n', '\t', '\v', (char)12 });
+            String lexem;
+            int currentIndex = 0;
+            ushort currentAttribute = AttributeClass.Get(sentence[0]);
+            while (currentIndex < sentence.Length) {
+                lexem = sentence[currentIndex].ToString();
+                if ((currentAttribute & (AttributeClass.WORD)) != 0) {
+                    //idintifier ow keyword handler
+                    while (++currentIndex < sentence.Length &&
+                        ((currentAttribute = AttributeClass.Get(sentence[currentIndex])) & (AttributeClass.WORD | AttributeClass.DIGIT)) != 0) {
+                        lexem += sentence[currentIndex];
+                    }
+
+                    ushort key;
+                    if (!KWTable.IsInTable(lexem)) {
+                        if (!IDTable.IsInTable(lexem)) 
+                            IDTable.Insert(lexem);
+                            
+                        key = IDTable.GetKey(lexem); 
+                    } else {
+                        key = KWTable.GetKey(lexem);
+                    }
+                    result.Add(key);
                 }
-                else if ((charAttribute & AttributeClass.ONE_SYMBOL_SEPARATORS) != 0 &&
-                    item.Length == 1) {
-                    //one symbol separator or white space
-                    analyzedString.Add(charAttribute);
+                else if ((currentAttribute & (AttributeClass.DIGIT | AttributeClass.NUMBER_SIGN)) != 0) {
+                    //number handler
+                    while (++currentIndex < sentence.Length &&
+                        ((currentAttribute = AttributeClass.Get(sentence[currentIndex])) & (AttributeClass.DIGIT)) != 0) {
+                        lexem += sentence[currentIndex];
+                    }
+
+                    if (!CTable.IsInTable(lexem))
+                        CTable.Insert(lexem);
+                    
+                    result.Add(CTable.GetKey(lexem));
                 }
-                else if ((charAttribute & AttributeClass.MULTY_SYMBOL_SEPARATORS) != 0 &&
-                    item.Length != 1) {
-                    //multy symbol separator
-                    MultySymbolSeparatorsTable table = tables[0] as MultySymbolSeparatorsTable;
-                    UInt16 key;
-                    try {
-                        key = table.exists(item);
-                        analyzedString.Add(key);
-                    } catch (Exception) {
-                        //it is several one symbol separators
-                        foreach (var chars in item) {
-                            analyzedString.Add(AttributeClass.get(chars));
-                        }
+                else if ((currentAttribute & (AttributeClass.SEPARATOR)) != 0) {
+                    //separator
+                    while (++currentIndex < sentence.Length &&
+                        ((currentAttribute = AttributeClass.Get(sentence[currentIndex])) & (AttributeClass.SEPARATOR)) != 0) {
+                        lexem += sentence[currentIndex];
                     }
-                } else if ((charAttribute & AttributeClass.KEYWORDS) != 0) {
-                    //keyword or identifier
-                    UInt16 key;
-                    KeyWordsTable table = tables[1] as KeyWordsTable;
-                    try {
-                        key = table.exists(item);
-                        analyzedString.Add(key);
-                    } catch (Exception) {
-                        //it is identifier
-                        IdentifierTables tableID = tables[3] as IdentifierTables;
-                        try {
-                            key = tableID.exists(item);
-                            analyzedString.Add(key);
-                        } catch (Exception) {
-                            //new ID
-                            tableID.insert(item);
-                            analyzedString.Add(tableID.exists(item));
-                        }
+
+                    if (!MSTable.IsInTable(lexem)) {
+                        foreach (var item in lexem)
+                            result.Add(AttributeClass.Get(item));
                     }
-                } else if ((charAttribute & AttributeClass.CONST) != 0) {
-                    //constant
-                    ConstantsTable table = tables[2] as ConstantsTable;
-                    UInt16 key;
-                    try {
-                        key = table.exists(item);
-                        analyzedString.Add(key);
-                    } catch (Exception) {
-                        table.insert(item);
-                        analyzedString.Add(table.exists(item));
-                    }
-                } else {
-                    throw new ArgumentException("item");
+
+                    result.Add(MSTable.GetKey(lexem));
+                }
+                else if ((currentAttribute & (AttributeClass.DOLLAR_SIGN | AttributeClass.FRACTIONAL_PART_SIGN)) != 0) {
+                    result.Add(sentence[currentIndex]);
+                    currentAttribute = (++currentIndex < sentence.Length) ? 
+                        AttributeClass.Get(sentence[currentIndex]) : 
+                        AttributeClass.ERROR;
+                } else if ((currentAttribute & AttributeClass.WHITE_SPACE) != 0) {
+                    //spaces
+                    while (++currentIndex < sentence.Length &&
+                        ((currentAttribute = AttributeClass.Get(sentence[currentIndex])) & (AttributeClass.WHITE_SPACE)) != 0) ;
+
+                    result.Add(' ');
+                } else if (currentAttribute == AttributeClass.ERROR) {
+                    //error
+                    result.Add(0);
+                    currentAttribute = (++currentIndex < sentence.Length) ?
+                        AttributeClass.Get(sentence[currentIndex]) :
+                        AttributeClass.ERROR;
                 }
             }
-            return analyzedString;
+            return result;
+        }
+
+        public static List<UInt16> ParseFile(string filename, Table[] tables) {
+            List<UInt16> result = new List<ushort>();
+
+            using (StreamReader sr = new StreamReader(filename)) {
+                string line;
+                while ((line = sr.ReadLine()) != null) 
+                    result.AddRange(Parser.Parse(line, tables));
+            }
+
+            return result;
         }
     }
 }

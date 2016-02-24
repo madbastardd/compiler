@@ -8,13 +8,12 @@ using Concrete.TableSpace;
 namespace Concrete.MultySymbolSeparatorsTableSpace {
     public class MultySymbolSeparatorsTable : Table {
         public MultySymbolSeparatorsTable(ushort _index = 301) : base(_index) {
-            this.insert(">=");
-            this.insert("<=");
-            this.insert(":=");
-            this.insert("==");
+            this.Insert("<=");
+            this.Insert("<>");
+            this.Insert(">=");
         }
-        public override void insert(string _value) {
-            base.insert(_value);
+        public override void Insert(string _value) {
+            base.Insert(_value);
         }
     }
 }

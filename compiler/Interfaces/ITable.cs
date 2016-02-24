@@ -4,8 +4,11 @@ namespace Interfaces.TableSpace {
     interface ITable {
         string this[ushort index] { get; }
 
-        ushort exists(string _value);
-        bool isInTable(string _value);
-        void insert(string _value);
+        ushort GetKey(string _value);
+        bool IsInTable(string _value);
+        void Insert(string _value);
+        void Clear();
+        void ReadFromFile(string fileName);
+        void SaveToFile(string fileName, bool WithKeys = false);
     }
 }

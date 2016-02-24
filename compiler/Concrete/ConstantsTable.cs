@@ -9,8 +9,8 @@ namespace Concrete.ConstantsTableSpace {
         public ConstantsTable(ushort _index = 501) : base(_index) {
             //constant create
         }
-        public override void insert(string _value) {
-            base.insert(_value);
+        public override void Insert(string _value) {
+            base.Insert(_value);
         }
     }
 }

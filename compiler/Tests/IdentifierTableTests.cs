@@ -9,16 +9,16 @@ namespace Test.IdentifierTableSpace.Tests {
         [TestMethod()]
         public void IdentifierTableInsert() {
             Table table = new IdentifierTables();
-            table.insert("dima");
-            table.insert("dima2");
-            Assert.AreEqual(true, table.isInTable("dima"));
-            Assert.AreEqual(1002, table.exists("dima2"));
+            table.Insert("dima");
+            table.Insert("dima2");
+            Assert.AreEqual(true, table.IsInTable("dima"));
+            Assert.AreEqual(1002, table.GetKey("dima2"));
         }
         [TestMethod]
         public void IdentifierTableInsert2() {
             try {
                 Table table = new IdentifierTables();
-                table.insert("dima");
+                table.Insert("dima");
                 Assert.Fail("table");
             }
             catch (Exception) {

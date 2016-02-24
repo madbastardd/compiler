@@ -10,8 +10,8 @@ namespace Concrete.IdentifierTableSpace {
         public IdentifierTables(ushort _index = 1001) : base(_index) {
             //creates empty table
         }
-        public override void insert(string _value) {
-            base.insert(_value);
+        public override void Insert(string _value) {
+            base.Insert(_value);
         }
     }
 }

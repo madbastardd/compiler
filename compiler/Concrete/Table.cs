@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using Interfaces.TableSpace;
@@ -26,22 +26,22 @@ namespace Concrete.TableSpace {
             }
         }
 
-        void insert(KeyValuePair<ushort, string> pair) {
-            if (this.isInTable(pair.Value))
+        void Insert(KeyValuePair<ushort, string> pair) {
+            if (this.IsInTable(pair.Value))
                 throw new ArgumentException(pair.Value);
             this[pair.Key] = pair.Value;
         }
 
-        public virtual void insert(string _value) {
+        public virtual void Insert(string _value) {
             try {
-                this.insert(new KeyValuePair<ushort, string>(this.current_index++, _value));
+                this.Insert(new KeyValuePair<ushort, string>(this.current_index++, _value));
             } catch (Exception ex) when (ex is ArgumentException || ex is ArgumentNullException) {
                 this.current_index--;
                 throw ex;
             }    
         }
 
-        public ushort exists(string _value) {
+        public ushort GetKey(string _value) {
             var result = from res in this.data
                          where res.Value == _value
                          select res;
@@ -50,11 +50,36 @@ namespace Concrete.TableSpace {
             return key;
         }
 
-        public bool isInTable(string _value) {
+        public bool IsInTable(string _value) {
             var result = from res in this.data
                          where res.Value == _value
                          select res;
             return result.Count() != 0;
+        }
+
+        public void ReadFromFile(string fileName) {
+            using (StreamReader sr = new StreamReader(fileName)) {
+                this.data.Clear();
+                string _value;
+                while ((_value = sr.ReadLine()) != null) {
+                    this.Insert(_value);
+                }
+            }
+        }
+
+        public void SaveToFile(string fileName, bool WithKeys = false) {
+            using (StreamWriter sw = new StreamWriter(fileName)) {
+                foreach (var item in this.data) {
+                    if (WithKeys)
+                        sw.WriteLine(String.Format("{0}:{1}\n", item.Key, item.Value));
+                    else
+                        sw.WriteLine(String.Format("{0}\n", item.Value));
+                }
+            }
+        }
+
+        public void Clear() {
+            this.data.Clear();
         }
     }
 }

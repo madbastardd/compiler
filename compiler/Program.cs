@@ -14,7 +14,7 @@ namespace lexical_analyzer_c_sharp {
 
             Table table = new IdentifierTables();
 
-            table.insert("dimasik");
+            table.Insert("dimasik");
         }
     }
 }
