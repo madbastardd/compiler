@@ -16,6 +16,14 @@ namespace Concrete.KeyWordTableSpace {
             this.Insert("NOT");
             this.Insert("MOD");
             this.Insert("EXP");
+            this.Insert("SIGNAL");
+            this.Insert("COMPLEX");
+            this.Insert("INTEGER");
+            this.Insert("FLOAT");
+            this.Insert("BLOCKFLOAT");
+            this.Insert("EXT");
+            this.Insert("VAR");
+            this.Insert("CONST");
         }
         public override void Insert(string _value) {
             base.Insert(_value);

@@ -12,9 +12,9 @@ namespace Concrete.AttributeClassSpace {
             SEPARATOR = 2,
             WORD = 4,
             DIGIT = 8,
-            FRACTIONAL_PART_SIGN = 16,
-            DOLLAR_SIGN = 32,
-            NUMBER_SIGN = 64;
+            COMMENT_STARTER_ENDER = 16,
+            COMMENT_END_BRACKET = 32,
+            COMMENT_START_BRACKER = 64;
 
         static List<UInt16> attributes = new List<UInt16>();
 
@@ -28,11 +28,9 @@ namespace Concrete.AttributeClassSpace {
                     //constant
                     attributes.Add((UInt16)(DIGIT));
                 }
-                else if (ind == '+' || ind == '-') {
-                    //number sign
-                    attributes.Add((UInt16)(NUMBER_SIGN));
-                }
-                else if (ind == ':' || ind == '>' || ind == '<' || ind == ';' || ind == '*' || ind == '=' || ind == '!' || ind == '/' || ind == '&' || ind == '^') {
+                else if (ind == ':' || ind == ';' || ind == '=' || ind == '#' || ind == '$' || ind == ',' ||
+                    ind == '!' || ind == '/' || ind == '&' || ind == '^' || ind == '+' || ind == '-' ||
+                    ind == '[' || ind == ']' || ind == '\'') {
                     //separators
                     attributes.Add((UInt16)(SEPARATOR));
                 }
@@ -40,13 +38,16 @@ namespace Concrete.AttributeClassSpace {
                     //white spaces
                     attributes.Add((UInt16)(WHITE_SPACE));
                 }
-                else if (ind == '#') {
-                    //fractional part
-                    attributes.Add((UInt16)(FRACTIONAL_PART_SIGN));
+                else if (ind == '*') {
+                    //may be comment start
+                    attributes.Add((UInt16)(COMMENT_STARTER_ENDER | SEPARATOR));
                 }
-                else if (ind == '$') {
-                    //dolla sign of EXP
-                    attributes.Add((UInt16)(DOLLAR_SIGN));
+                else if (ind == '>') {
+                    //may be comment end
+                    attributes.Add((UInt16)(COMMENT_END_BRACKET | SEPARATOR));
+                }
+                else if (ind == '<') {
+                    attributes.Add((UInt16)(COMMENT_START_BRACKER | SEPARATOR));
                 }
                 else {
                     attributes.Add((UInt16)(ERROR));

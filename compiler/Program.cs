@@ -8,13 +8,7 @@ namespace lexical_analyzer_c_sharp {
         
         
         static void Main(string[] args) {
-            AttributeClass attributes = new AttributeClass();
 
-            //Console.WriteLine(attributes[(ushort)'A']);
-
-            Table table = new IdentifierTables();
-
-            table.Insert("dimasik");
         }
     }
 }
