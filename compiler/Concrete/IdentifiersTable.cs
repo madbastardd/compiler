@@ -7,7 +7,7 @@ using Concrete.TableSpace;
 
 namespace Concrete.IdentifierTableSpace {
     public class IdentifierTables : Table {
-        public IdentifierTables(ushort _index = 1001) : base(_index) {
+        public IdentifierTables() : base() {
             //creates empty table
         }
         public override void Insert(string _value) {

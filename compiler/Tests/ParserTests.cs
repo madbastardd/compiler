@@ -16,71 +16,73 @@ namespace Concrete.Parser.Tests {
 
         [TestMethod()]
         public void ParseTest1() {
-            CollectionAssert.AreEqual(Parser.Parse("         PROGRAM one              -120#30\ndima<=s", tables),
-                new List<UInt16>() {(tables[1] as KeyWordTableSpace.KeyWordsTable).GetKey("PROGRAM"),
-                    32, 1001, 32, '-', 501, '#', 502, 32, 1002, 301, 1003 });
+            CollectionAssert.AreEqual(Parser.Parse("         PROGRAM PROGRAM one              -120#30\ndima<=s", tables),
+                new List<int>() { "PROGRAM".GetHashCode(), " ".GetHashCode(), "PROGRAM".GetHashCode(),
+                    " ".GetHashCode(), "one".GetHashCode(), " ".GetHashCode(),
+                    "-".GetHashCode(), "120".GetHashCode(), "#".GetHashCode(), "30".GetHashCode(), " ".GetHashCode(),
+                    "dima".GetHashCode(), "<=".GetHashCode(), "s".GetHashCode()});
         }
 
         [TestMethod]
         public void ParseTest2() {
             try {
                 Parser.Parse("", tables);
-                Assert.Fail();
             } 
             catch (Exception) {
-                //all ok
+                return;
             }
+            Assert.Fail();
         }
 
         [TestMethod]
         public void ParseTest3() {
             try {
-                Parser.Parse(null, tables);
-                Assert.Fail();
+                Parser.Parse(null, tables);   
             }
             catch (Exception) {
-                //all ok
+                return;
             }
+            Assert.Fail();
         }
 
         [TestMethod]
         public void ParseTest4() {
             CollectionAssert.AreEqual(Parser.Parse("PROGRAM", tables), 
-                new List<UInt16>() { (tables[1] as KeyWordTableSpace.KeyWordsTable).GetKey("PROGRAM") });
+                new List<int>() { "PROGRAM".GetHashCode() });
         }
 
         [TestMethod]
         public void ParseTest5() {
             CollectionAssert.AreEqual(Parser.Parse("*", tables),
-                new List<UInt16>() { '*' });
+                new List<int>() { "*".GetHashCode() });
         }
 
         [TestMethod]
         public void ParseTest6() {
             CollectionAssert.AreEqual(Parser.Parse("*<", tables),
-                new List<UInt16>() { 0 });
+                new List<int>() { "<ERR>".GetHashCode() });
         }
         [TestMethod]
         public void ParseTest7() {
             CollectionAssert.AreEqual(Parser.Parse("*<*", tables),
-                new List<UInt16>() { 0 });
+                new List<int>() { "<ERR>".GetHashCode() });
         }
 
         [TestMethod]
         public void ParseTest8() {
             CollectionAssert.AreEqual(Parser.Parse("*<>*", tables),
-                new List<UInt16>());
+                new List<int>());
         }
 
         [TestMethod]
         public void ParseTest9() {
             CollectionAssert.AreEqual(Parser.Parse("*<text here will be ******>>>>> ignored>*", tables),
-                new List<UInt16>());
+                new List<int>());
         }
 
         [TestMethod]
         public void ParseTest10() {
-            List<ushort> result = Parser.ParseFile("test.txt", tables);
+            List<int> result = Parser.ParseFile("test.txt", tables);
         }
     }
 }

@@ -7,7 +7,8 @@ using Concrete.TableSpace;
 
 namespace Concrete.MultySymbolSeparatorsTableSpace {
     public class MultySymbolSeparatorsTable : Table {
-        public MultySymbolSeparatorsTable(ushort _index = 301) : base(_index) {
+        public MultySymbolSeparatorsTable() : base() {
+            //all multy symbol separators
             this.Insert("<=");
             this.Insert("<>");
             this.Insert(">=");

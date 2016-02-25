@@ -55,7 +55,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Concrete\Table.cs" />
     <Compile Include="Tests\IdentifierTableTests.cs" />
-    <Compile Include="Tests\MultySymbolSeparatorsTableTests.cs" />
     <Compile Include="Tests\ParserTests.cs" />
   </ItemGroup>
   <ItemGroup>

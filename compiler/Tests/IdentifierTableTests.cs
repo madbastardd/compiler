@@ -11,19 +11,8 @@ namespace Test.IdentifierTableSpace.Tests {
             Table table = new IdentifierTables();
             table.Insert("dima");
             table.Insert("dima2");
-            Assert.AreEqual(true, table.IsInTable("dima"));
-            Assert.AreEqual(1002, table.GetKey("dima2"));
-        }
-        [TestMethod]
-        public void IdentifierTableInsert2() {
-            try {
-                Table table = new IdentifierTables();
-                table.Insert("dima");
-                Assert.Fail("table");
-            }
-            catch (Exception) {
-                //All OK
-            }
+            Assert.AreEqual(true, table.ContainsValue("dima"));
+            Assert.AreEqual(false, table.ContainsValue("dima3"));
         }
     }
 }

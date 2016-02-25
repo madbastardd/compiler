@@ -16,7 +16,7 @@ namespace Concrete.Parser {
             VAR_READ, CONST_READ, PROCEDURE_READ
         }
         static bool ParsedWithError = false;
-        public static List<UInt16> Parse(string sentence, Table[] tables) {
+        public static List<int> Parse(string sentence, Table[] tables) {
             /*
                 tables:
                     0 - Multy Symbol Table
@@ -24,8 +24,9 @@ namespace Concrete.Parser {
                     2 - Constants
                     3 - Identifiers
             */
-            List<UInt16> result = new List<ushort>();
+            List<int> result = new List<int>();
 
+            sentence = sentence.Trim(new char[] { ' ', '\n', '\t', '\v', (char)12 });
             //checks
             if (sentence == null)
                 throw new ArgumentNullException("sentence");
@@ -39,8 +40,7 @@ namespace Concrete.Parser {
             ConstantsTable CTable = tables[2] as ConstantsTable;
             IdentifierTables IDTable = tables[3] as IdentifierTables;
 
-            sentence = sentence.Trim(new char[] { ' ', '\n', '\t', '\v', (char)12 });
-            String lexem;
+            string lexem;
             int currentIndex = 0;
             ushort currentAttribute = AttributeClass.Get(sentence[0]);
 
@@ -54,17 +54,10 @@ namespace Concrete.Parser {
                         lexem += sentence[currentIndex];
                     }
 
-                    ushort key;
-                    if (!KWTable.IsInTable(lexem)) {
-                        if (!IDTable.IsInTable(lexem))
-                            IDTable.Insert(lexem);
-
-                        key = IDTable.GetKey(lexem);
-                    }
-                    else {
-                        key = KWTable.GetKey(lexem);
-                    }
-                    result.Add(key);
+                    if (!KWTable.ContainsValue(lexem) && !IDTable.ContainsValue(lexem)) 
+                        IDTable.Insert(lexem);
+                    
+                    result.Add(lexem.GetHashCode());
                 }
                 else if ((currentAttribute & (AttributeClass.DIGIT)) != 0) {
                     //number handler
@@ -73,10 +66,10 @@ namespace Concrete.Parser {
                         lexem += sentence[currentIndex];
                     }
 
-                    if (!CTable.IsInTable(lexem))
+                    if (!CTable.ContainsValue(lexem))
                         CTable.Insert(lexem);
 
-                    result.Add(CTable.GetKey(lexem));
+                    result.Add(lexem.GetHashCode());
                 }
                 else if ((currentAttribute & AttributeClass.COMMENT_STARTER_ENDER) != 0) {
                     if (++currentIndex < sentence.Length &&
@@ -101,14 +94,14 @@ namespace Concrete.Parser {
                             }
                             //got errors
                             if (currentIndex >= sentence.Length) {
-                                result.Add(0);
+                                result.Add("<ERR>".GetHashCode());
                                 Parser.ParsedWithError = true;
                                 break;
                             }
                         } while (true);
                     } else {
                         //it is separator
-                        result.Add(sentence[currentIndex - 1]);
+                        result.Add("*".GetHashCode());
                     }
                 }
                 else if ((currentAttribute & (AttributeClass.SEPARATOR)) != 0) {
@@ -118,12 +111,12 @@ namespace Concrete.Parser {
                         lexem += sentence[currentIndex];
                     }
 
-                    if (!MSTable.IsInTable(lexem)) {
+                    if (!MSTable.ContainsValue(lexem)) {
                         foreach (var item in lexem)
-                            result.Add(item);
+                            result.Add(item.ToString().GetHashCode());
                     }
                     else {
-                        result.Add(MSTable.GetKey(lexem));
+                        result.Add(lexem.GetHashCode());
                     }
                 }
                 else if ((currentAttribute & AttributeClass.WHITE_SPACE) != 0) {
@@ -131,11 +124,11 @@ namespace Concrete.Parser {
                     while (++currentIndex < sentence.Length &&
                         ((currentAttribute = AttributeClass.Get(sentence[currentIndex])) & (AttributeClass.WHITE_SPACE)) != 0) ;
 
-                    result.Add(' ');
+                    result.Add(" ".GetHashCode());
                 }
                 else if (currentAttribute == AttributeClass.ERROR) {
                     //error
-                    result.Add(0);
+                    result.Add("<ERR>".GetHashCode());
                     currentAttribute = (++currentIndex < sentence.Length) ?
                         AttributeClass.Get(sentence[currentIndex]) :
                         AttributeClass.ERROR;
@@ -145,7 +138,7 @@ namespace Concrete.Parser {
             return result;
         }
 
-        public static List<UInt16> ParseFile(string filename, Table[] tables) {
+        public static List<int> ParseFile(string filename, Table[] tables) {
             using (StreamReader sr = new StreamReader(filename)) {
                 string line = "", tmp_line;
                 while (!sr.EndOfStream) {

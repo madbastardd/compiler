@@ -9,55 +9,26 @@ namespace Concrete.TableSpace {
     /// class includes dictionary, that has unique keys and unique values
     /// </summary>
     public abstract class Table : ITable {
-        protected ushort current_index;
-        protected SortedDictionary<ushort, string> data;
+        protected Dictionary<int, string> data;
 
-        public Table(ushort _current_index = 0) {
-            this.current_index = _current_index;
-            this.data = new SortedDictionary<ushort, string>();
+        public Table() {
+            this.data = new Dictionary<int, string>();
         }
-        public string this[ushort index] {
+        public string this[int index] {
             get {
-                var result = this.data[index];
-                return result;
+                return this.data[index];
             }
-            private set {
-                this.data.Add(index, value);
-            }
-        }
-
-        void Insert(KeyValuePair<ushort, string> pair) {
-            if (this.IsInTable(pair.Value))
-                throw new ArgumentException(pair.Value);
-            this[pair.Key] = pair.Value;
         }
 
         public virtual void Insert(string _value) {
-            try {
-                this.Insert(new KeyValuePair<ushort, string>(this.current_index++, _value));
-            } catch (Exception ex) when (ex is ArgumentException || ex is ArgumentNullException) {
-                this.current_index--;
-                throw ex;
-            }    
+            this.data.Add(_value.GetHashCode(), _value);
         }
 
-        public ushort GetKey(string _value) {
-            var result = from res in this.data
-                         where res.Value == _value
-                         select res;
-
-            var key = result.First().Key;
-            return key;
+        public bool ContainsValue(string _value) {
+            return this.data.ContainsValue(_value);
         }
 
-        public bool IsInTable(string _value) {
-            var result = from res in this.data
-                         where res.Value == _value
-                         select res;
-            return result.Count() != 0;
-        }
-
-        public void ReadFromFile(string fileName) {
+        public virtual void ReadFromFile(string fileName) {
             using (StreamReader sr = new StreamReader(fileName)) {
                 this.data.Clear();
                 string _value;
@@ -67,7 +38,7 @@ namespace Concrete.TableSpace {
             }
         }
 
-        public void SaveToFile(string fileName, bool WithKeys = false) {
+        public virtual void SaveToFile(string fileName, bool WithKeys = false) {
             using (StreamWriter sw = new StreamWriter(fileName)) {
                 foreach (var item in this.data) {
                     if (WithKeys)

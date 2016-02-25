@@ -2,10 +2,8 @@
 
 namespace Interfaces.TableSpace {
     interface ITable {
-        string this[ushort index] { get; }
-
-        ushort GetKey(string _value);
-        bool IsInTable(string _value);
+        string this[int index] { get; }
+        bool ContainsValue(string _value);
         void Insert(string _value);
         void Clear();
         void ReadFromFile(string fileName);

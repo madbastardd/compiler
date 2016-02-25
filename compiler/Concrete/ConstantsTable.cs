@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Concrete.ConstantsTableSpace {
     public class ConstantsTable : TableSpace.Table {
-        public ConstantsTable(ushort _index = 501) : base(_index) {
+        public ConstantsTable() : base() {
             //constant create
         }
         public override void Insert(string _value) {
