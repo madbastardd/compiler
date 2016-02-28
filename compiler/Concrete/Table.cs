@@ -10,7 +10,6 @@ namespace Concrete.TableSpace {
     /// </summary>
     public abstract class Table : ITable {
         protected Dictionary<int, string> data;
-
         public Table() {
             this.data = new Dictionary<int, string>();
         }

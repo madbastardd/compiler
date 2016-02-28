@@ -12,10 +12,10 @@ using System.IO;
 
 namespace Concrete.Parser {
     public class Parser {
-        enum States {
-            VAR_READ, CONST_READ, PROCEDURE_READ
+		public enum States {
+            UNDEFINED, VAR, CONST, PROCEDURE
         }
-        static bool ParsedWithError = false;
+		static States state = States.UNDEFINED;
         public static List<int> Parse(string sentence, Table[] tables) {
             /*
                 tables:
@@ -44,7 +44,6 @@ namespace Concrete.Parser {
             int currentIndex = 0;
             ushort currentAttribute = AttributeClass.Get(sentence[0]);
 
-            Parser.ParsedWithError = false;
             while (currentIndex < sentence.Length) {
                 lexem = sentence[currentIndex].ToString();
                 if ((currentAttribute & (AttributeClass.WORD)) != 0) {
@@ -55,9 +54,17 @@ namespace Concrete.Parser {
                     }
 
                     if (!KWTable.ContainsValue(lexem) && !IDTable.ContainsValue(lexem)) 
-                        IDTable.Insert(lexem);
+                        IDTable.Insert(lexem, state);
                     
                     result.Add(lexem.GetHashCode());
+
+					if (lexem == "VAR") {
+						state = States.VAR;
+					} else if (lexem == "CONST") {
+						state = States.CONST;
+					} else if (lexem == "PROCADURE" || lexem == "PROGRAM") {
+						state = States.PROCEDURE;
+					}
                 }
                 else if ((currentAttribute & (AttributeClass.DIGIT)) != 0) {
                     //number handler
@@ -92,10 +99,10 @@ namespace Concrete.Parser {
                                     break;
                                 }
                             }
-                            //got errors
+                            //unclosed comment
                             if (currentIndex >= sentence.Length) {
                                 result.Add("<ERR>".GetHashCode());
-                                Parser.ParsedWithError = true;
+								Console.WriteLine ("Unclosed comment");
                                 break;
                             }
                         } while (true);
@@ -132,7 +139,7 @@ namespace Concrete.Parser {
                     currentAttribute = (++currentIndex < sentence.Length) ?
                         AttributeClass.Get(sentence[currentIndex]) :
                         AttributeClass.ERROR;
-                    Parser.ParsedWithError = true;
+					Console.WriteLine ("Undefined symbol");
                 }
             }
             return result;

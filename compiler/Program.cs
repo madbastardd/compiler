@@ -10,7 +10,7 @@ using Concrete.ConstantsTableSpace;
 using System.IO;
 using System.Diagnostics;
 
-namespace lexical_analyzer_c_sharp {
+namespace compiler {
     class Program {
         static void Main(string[] args) {
             Console.WriteLine("Enter text file name: ");
@@ -19,29 +19,30 @@ namespace lexical_analyzer_c_sharp {
             Stopwatch sw = new Stopwatch();
 
             sw.Start();
-            Table[] tables = new Table[] {
-                new MultySymbolSeparatorsTable(),
-                new KeyWordsTable(),
-                new ConstantsTable(),
-                new IdentifierTables()
-            };
-            List<int> list = Parser.ParseFile(textFile, tables);
-            sw.Stop();
+			try {
+	            Table[] tables = new Table[] {
+	                new MultySymbolSeparatorsTable(),
+	                new KeyWordsTable(),
+	                new ConstantsTable(),
+	                new IdentifierTables()
+	            };
+	            List<int> list = Parser.ParseFile(textFile, tables);
+	            sw.Stop();
 
-            Console.WriteLine("Enter result text file name: ");
-            string result_textFile = Console.ReadLine();
-
-            try {
+	            Console.WriteLine("Enter result text file name: ");
+	            string result_textFile = Console.ReadLine();
+				            
                 using (StreamWriter sr = new StreamWriter(result_textFile)) {
                     foreach (var item in list) {
                         sr.WriteLine(item);
                     }
                 }
+				tables[3].SaveToFile("id.dat", true);
+
+				Console.WriteLine("Parsed for " + sw.ElapsedMilliseconds + " milliseconds");
             } catch (Exception ex) {
                 Console.WriteLine(ex.Message);
-            }
-
-            Console.WriteLine("Parsed for " + sw.ElapsedMilliseconds + " milliseconds");
+            } 
         }
     }
 }
