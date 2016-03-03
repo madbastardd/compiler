@@ -28,9 +28,10 @@ namespace Concrete.AttributeClassSpace {
                     //constant
                     attributes.Add((UInt16)(DIGIT));
                 }
-                else if (ind == ':' || ind == ';' || ind == '=' || ind == '#' || ind == '$' || ind == ',' ||
-                    ind == '!' || ind == '/' || ind == '&' || ind == '^' || ind == '+' || ind == '-' ||
-                    ind == '[' || ind == ']' || ind == '\'') {
+                else if (ind == ':' || ind == ';' || ind == '=' || ind == '#' || ind == '$' || ind == ',' 
+				         || ind == '!' || ind == '/' || ind == '&' || ind == '^' || ind == '+' || ind == '-' 
+				         || ind == '[' || ind == ']' || ind == '\'' || ind =='"' || ind == '.' || ind == '('
+				         || ind == ')') {
                     //separators
                     attributes.Add((UInt16)(SEPARATOR));
                 }

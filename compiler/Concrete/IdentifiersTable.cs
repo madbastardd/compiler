@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Concrete.TableSpace;
@@ -8,9 +7,10 @@ using System.IO;
 
 namespace Concrete.IdentifierTableSpace {
     public class IdentifierTables : Table {
-		Dictionary<int, Parser.Parser.States> IDType = new Dictionary<int, Parser.Parser.States>();
-        public IdentifierTables() : base() {
+		Dictionary<ushort, Parser.Parser.States> IDType = new Dictionary<ushort, Parser.Parser.States>();
+        public IdentifierTables() : base(1001) {
             //creates empty table
+			this.ReadFromFile ("startid.dat");
         }
         public override void Insert(string _value) {
 			this.Insert (_value, Parser.Parser.States.UNDEFINED);
@@ -19,7 +19,7 @@ namespace Concrete.IdentifierTableSpace {
 		public void Insert(string _value, Parser.Parser.States state) {
 			base.Insert(_value);
 
-			this.IDType.Add (_value.GetHashCode (), state);
+			this.IDType.Add ((ushort)(this.CurrentIndex - 1), state);
 		}
 
 		public override void SaveToFile (string fileName, bool WithKeys)

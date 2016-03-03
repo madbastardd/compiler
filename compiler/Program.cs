@@ -34,9 +34,12 @@ namespace compiler {
 				            
                 using (StreamWriter sr = new StreamWriter(result_textFile)) {
                     foreach (var item in list) {
-                        sr.WriteLine(item);
+                        sr.Write(item + " ");
                     }
                 }
+				tables[0].SaveToFile("ms.dat", true);
+				tables[1].SaveToFile("kw.dat", true);
+				tables[2].SaveToFile("ct.dat", true);
 				tables[3].SaveToFile("id.dat", true);
 
 				Console.WriteLine("Parsed for " + sw.ElapsedMilliseconds + " milliseconds");

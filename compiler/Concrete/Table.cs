@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using Interfaces.TableSpace;
 
 namespace Concrete.TableSpace {
@@ -9,18 +8,23 @@ namespace Concrete.TableSpace {
     /// class includes dictionary, that has unique keys and unique values
     /// </summary>
     public abstract class Table : ITable {
-        protected Dictionary<int, string> data;
-        public Table() {
-            this.data = new Dictionary<int, string>();
+		protected Dictionary<ushort, string> data;
+		protected ushort CurrentIndex;
+
+		public Table(ushort index = 0) {
+			this.data = new Dictionary<ushort, string>();
+			this.CurrentIndex = index;
         }
-        public string this[int index] {
+        public string this[ushort index] {
             get {
                 return this.data[index];
             }
         }
 
         public virtual void Insert(string _value) {
-            this.data.Add(_value.GetHashCode(), _value);
+			if (this.data.ContainsValue (_value)) 
+				throw new ArgumentException (_value);
+			this.data.Add(this.CurrentIndex++, _value);          
         }
 
         public bool ContainsValue(string _value) {
@@ -41,9 +45,9 @@ namespace Concrete.TableSpace {
             using (StreamWriter sw = new StreamWriter(fileName)) {
                 foreach (var item in this.data) {
                     if (WithKeys)
-                        sw.WriteLine(String.Format("{0}:{1}\n", item.Key, item.Value));
+                        sw.WriteLine(String.Format("{0}:{1}", item.Key, item.Value));
                     else
-                        sw.WriteLine(String.Format("{0}\n", item.Value));
+                        sw.WriteLine(String.Format("{0}", item.Value));
                 }
             }
         }
@@ -51,5 +55,13 @@ namespace Concrete.TableSpace {
         public void Clear() {
             this.data.Clear();
         }
+
+		public ushort GetKey (string _value) {
+			foreach (var item in this.data) {
+				if (item.Value == _value)
+					return item.Key;
+			}
+			throw new ArgumentException (_value);
+    	}
     }
 }
